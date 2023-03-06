@@ -1,0 +1,33 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Bedsheet{% endblock title %}
+{% block main-content %}
+<div class="container my-5">
+ <div class="row">
+  <div class="col-sm-3">
+   <div class="list-group">
+     <a href="{% url 'Bedsheet' %}" class="list-group-item list-group-item-action" aria-current="true">All Bedsheets</a>
+     <a href="{% url 'BedsheetData' 'Diamond'  %}" class="list-group-item list-group-item-action" aria-current="true">Diamond Bedsheet</a>
+     <a href="{% url 'BedsheetData' 'Platinum'  %}" class="list-group-item list-group-item-action">Platinum Bedsheet</a>
+     <a href="{% url 'BedsheetData' 'below'  %}" class="list-group-item list-group-item-action">Below 750</a>
+     <a href="{% url 'BedsheetData' 'above'  %}" class="list-group-item list-group-item-action">Above 750</a>
+   </div>
+  </div>
+  <div class="col-sm-8">
+   <div class="row">
+    {% for product in Bedsheet %}
+     <div class="col-sm-4 text-center mb-4">
+      <a href="{% url 'product-detail' product.id %}" class="btn">
+       <div class="item">
+        <img src="{{product.product_image.url}}" alt=""width="220" height="150" class="">
+        <div class="fw-bold">{{product.title}}</div>
+        <div class="fw-bold">Rs. {{product.discounted_price}} <small class="fw-light text-decoration-line-through">{{product.selling_price}}</small></div>
+       </div>
+      </a>
+     </div>
+    {% endfor %}
+   </div>
+  </div>
+ </div>
+</div>
+{% endblock main-content %}

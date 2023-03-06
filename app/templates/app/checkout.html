@@ -1,0 +1,89 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Checkout{% endblock title %}
+{% block main-content %}
+<div class="container">
+ <div class="row mt-5">
+  <div class="col-sm-6">
+    <h4>Order Summary</h4>
+    <hr>
+    {% for item in cart_items %}
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5>Product: {{item.product.title}}</h5>
+          <p>Quantity: {{item.quantity}}</p>
+          <p class="fw-bold">Price: {{item.total_cost}}</p>
+        </div>
+      </div>
+    {% endfor %}
+    <p class="fw-bold">Total Cost + Rs. 70  = {{totalcost}}</p>
+    <small>(Rs. 70 Delivery Charge)</small> <hr>
+    <small>Term and Condition: 
+      <li>Returns only applicable within a week of receiving the item.product.title</li>
+      <li>to get the refund, customer should submit a parcel opening video as a proof.</li>
+    </small>
+  </div>
+  <div class="col-sm-4 offset-sm-1">
+    <h4>Select Shipping Address</h4>
+    <hr>
+    <form action="/paymentdone" id="myform">
+    {% for ad in add %}
+      <div class="card">
+        <div class="card-body">
+        <h5>{{ad.name}}</h5>
+        <p>{{ad.locality}}, {{ad.city}}, {{ad.state}}- {{ad.zipcode}}</p>
+        </div>
+      </div>
+        <div class="form-check mt-2 mb-5">
+          <input class="form-check-input" type="radio" name="custid" id="custadd{{forloop.counter}}" value="{{ad.id}}" checked>
+          <label class="form-check-label fw-bold" for="custadd{{forloop.counter}}">
+            Address: {{ forloop.counter }} </label>
+        </div>
+      {% endfor %}
+        <div class="border p-3">
+          {% comment %} <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold" id="continuebtn">Continue</button> {% endcomment %}
+          <!-- Set up a container element for the button -->
+          <p class="fw-bold">Payment Options:</p>
+          <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold" style="width:100%; padding:12px; background-color:warning; color:black;">Cash On Delivery</button>
+          <p></p>
+          <div id="paypal-button-container"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock main-content %}
+
+{% block payment-gateway %} 
+ <!-- Include the PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AX-XlL5tVznBAUm0fRKgIpIRzLcyyGp0LqlMkPG6g-I77BhGjuYdwRkOJYwn3w7f8uLW3Px82hkDLxd5&currency=USD"></script>
+
+    <script>
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            // Set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '{{totalcost}}'
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Show a success message to the buyer
+                    alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                    document.getElementById("myform").submit()
+                });
+            }
+
+
+        }).render('#paypal-button-container');
+    </script>
+
+{% endblock payment-gateway %}
